@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+
+  <remote name="neoteric-shadedark" fetch="https://github.com/neoteric-shadedark" />
+
+  <!-- Removing repositories from ROM manifest to use our forks -->
+  <remove-project name="android_build" />
+  <remove-project name="android_build_soong" />
+  <remove-project name="android_packages_apps_GameSpace" />
+
+  <!-- Our forks of ROM repositories -->
+  <project path="build/make" name="android_build" remote="neoteric-shadedark" revision="bka" />
+  <project path="build/soong" name="android_build_soong" remote="neoteric-shadedark" revision="vic" />
+  <project path="packages/apps/GameSpace" name="android_packages_apps_GameSpace" remote="neoteric-shadedark" revision="vic" />
+
+  <!-- Device specific repositories -->
+  <project path="device/xiaomi/marble" name="android_device_xiaomi_marble" remote="neoteric-shadedark" revision="vic" />
+  <project path="device/xiaomi/sm8450-common" name="android_device_xiaomi_sm8450-common" remote="neoteric-shadedark" revision="vic" />
+  <project path="device/xiaomi/marble-kernel" name="android_device_xiaomi_marble-kernel" remote="neoteric-shadedark" revision="vauxite" />
+
+  <!-- Vendor specific repositories -->
+  <project path="vendor/xiaomi/marble" name="proprietary_vendor_xiaomi_marble" remote="neoteric-shadedark" revision="vic" />
+  <project path="vendor/xiaomi/sm8450-common" name="proprietary_vendor_xiaomi_sm8450-common" remote="neoteric-shadedark" revision="vic" />
+  <project path="vendor/xiaomi/marble-firmware" name="proprietary_vendor_xiaomi_marble-firmware" remote="neoteric-shadedark" revision="vic" />
+  <project path="vendor/xiaomi/camera" name="proprietary_vendor_xiaomi_camera" remote="neoteric-shadedark" revision="vic-marble" />
+
+  <!-- Hardware specific repositories -->
+  <project path="hardware/xiaomi" name="android_hardware_xiaomi" remote="neoteric-shadedark" revision="vic" />
+  <project path="hardware/qcom-caf/sm8450/display" name="android_hardware_qcom_display" remote="neoteric-shadedark" revision="vic-8450" />
+
+</manifest>
