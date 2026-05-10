@@ -52,10 +52,10 @@
            remote="github"
            revision="bka" />
 
-  <project name="Neoteric-OS/android_hardware_qcom_display"
+  <project name="neoteric-shadedark/android_hardware_qcom_display"
            path="hardware/qcom/display"
            remote="github"
-           revision="bka-8450" />
+           revision="beryl-8450" />
 
     
   
