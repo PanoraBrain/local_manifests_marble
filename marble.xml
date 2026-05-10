@@ -11,7 +11,7 @@
   <project name="neoteric-shadedark/android_device_xiaomi_sm8450-common"
            path="device/xiaomi/sm8450-common"
            remote="github"
-           revision="bka" />
+           revision="vic" />
 
   <!-- Prebuilt kernel -->
   <project name="neoteric-shadedark/android_device_xiaomi_marble-kernel"
