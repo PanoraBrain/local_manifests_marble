@@ -57,6 +57,15 @@
            remote="github"
            revision="beryl-8450" />
 
+
+  <project
+    name="aospa-shadedark/android_packages_resources_devicesettings"
+    path="packages/resources/devicesettings"
+    remote="github"
+    revision="beryl" />
+
+
+  
     
   
 </manifest>
