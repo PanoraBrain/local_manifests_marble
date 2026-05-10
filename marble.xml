@@ -59,6 +59,12 @@
 
 
 
+    <remove-project name="android_packages_resources_devicesettings" /> 
+  
+  <project name="aospa-shadedark/android_packages_resources_devicesettings"
+           path="packages/resources/devicesettings"
+           remote="github"
+           revision="beryl" />
   
 
   
