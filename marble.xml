@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
 
+  <remote name="neoteric" fetch="https://github.com/Neoteric-OS" />
   <remote name="neoteric-shadedark" fetch="https://github.com/neoteric-shadedark" />
   <remote name="panorabrain" fetch="https://github.com/PanoraBrain" />
 
@@ -10,8 +11,9 @@
   <project path="packages/apps/GameSpace" name="android_packages_apps_GameSpace" remote="neoteric-shadedark" revision="vic" />
   <project path="packages/services/Telecomm" name="android_packages_services_Telecomm" remote="panorabrain" revision="bka" />
 
-  <project path="device/xiaomi/marble" name="android_device_xiaomi_marble" remote="neoteric-shadedark" revision="vic" />
-  <project path="device/xiaomi/sm8450-common" name="android_device_xiaomi_sm8450-common" remote="neoteric-shadedark" revision="vic" />
+  <project path="device/xiaomi/marble" name="android_device_xiaomi_marble" remote="neoteric" revision="vic" />
+  <project path="device/xiaomi/sm8450-common" name="android_device_xiaomi_sm8450-common" remote="neoteric" revision="vic" />
+  
   <project path="device/xiaomi/marble-kernel" name="android_device_xiaomi_marble-kernel" remote="neoteric-shadedark" revision="vauxite" />
 
   <project path="vendor/xiaomi/marble" name="proprietary_vendor_xiaomi_marble" remote="neoteric-shadedark" revision="vic" />
