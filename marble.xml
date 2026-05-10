@@ -67,6 +67,10 @@
            revision="beryl" />
   
 
+    <project name="AOSPA/android_hardware_interfaces"
+           path="hardware/aospa/interfaces"
+           remote="github"
+           revision="vauxite" />
   
     
   
