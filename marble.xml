@@ -58,12 +58,13 @@
            revision="beryl-8450" />
 
 
-  <project
-    name="aospa-shadedark/android_packages_resources_devicesettings"
-    path="packages/resources/devicesettings"
-    remote="github"
-    revision="beryl" />
-
+    <remove-project name="Neoteric-OS/android_packages_resources_devicesettings" /> 
+  
+  <project name="aospa-shadedark/android_packages_resources_devicesettings"
+           path="packages/resources/devicesettings"
+           remote="github"
+           revision="beryl" />
+  
 
   
     
