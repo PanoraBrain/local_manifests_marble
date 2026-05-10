@@ -2,16 +2,16 @@
 <manifest>
 
   <!-- Device tree -->
-  <project name="Neoteric-OS/android_device_xiaomi_marble"
+  <project name="neoteric-shadedark/android_device_xiaomi_marble"
            path="device/xiaomi/marble"
            remote="github"
            revision="vic" />
 
   <!-- Common device tree -->
-  <project name="Neoteric-OS/android_device_xiaomi_sm8450-common"
+  <project name="neoteric-shadedark/android_device_xiaomi_sm8450-common"
            path="device/xiaomi/sm8450-common"
            remote="github"
-           revision="vic" />
+           revision="bka" />
 
   <!-- Prebuilt kernel -->
   <project name="neoteric-shadedark/android_device_xiaomi_marble-kernel"
@@ -56,11 +56,5 @@
            path="hardware/qcom/display"
            remote="github"
            revision="bka-8450" />
-
-  <project
-    name="AOSPA/android_hardware_qcom_media"
-    path="hardware/qcom/media"
-    remote="github"
-    revision="beryl-8450" />
 
 </manifest>
