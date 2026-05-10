@@ -57,9 +57,6 @@
            remote="github"
            revision="bka-8450" />
 
-    <project name="Neoteric-OS/proprietary_vendor_qcom_common"
-           path="vendor/qcom/common"
-           remote="github"
-           revision="bka" />
+    
   
 </manifest>
