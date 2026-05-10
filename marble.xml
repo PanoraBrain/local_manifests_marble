@@ -57,10 +57,5 @@
            remote="github"
            revision="bka-8450" />
 
-  <!-- Apps -->
-  <project name="neoteric-shadedark/android_packages_apps_GameSpace"
-           path="packages/apps/GameSpace"
-           remote="github"
-           revision="vic" />
 
 </manifest>
