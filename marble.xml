@@ -53,7 +53,7 @@
            revision="bka" />
 
   <project name="Neoteric-OS/android_hardware_qcom_display"
-           path="hardware/qcom/display"
+           path="hardware/qcom-caf/sm8450/display"
            remote="github"
            revision="bka-8450" />
 
