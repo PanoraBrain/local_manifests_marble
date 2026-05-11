@@ -26,6 +26,37 @@ function checkExit() {
     fi
 }
 
+# Fallback-safe way to get AOSPA_MAJOR_VERSION
+# Tries vendor/aospa first (official path), then vendor/shadedark,
+# then falls back to "unknown" so the script never crashes here
+function getDisplayVersion() {
+    local version=""
+
+    if [ -f "vendor/aospa/target/product/version.mk" ]; then
+        version=$(cat vendor/aospa/target/product/version.mk \
+            | grep 'AOSPA_MAJOR_VERSION := *' | sed 's/.*= //')
+    elif [ -f "vendor/shadedark/target/product/version.mk" ]; then
+        version=$(cat vendor/shadedark/target/product/version.mk \
+            | grep 'AOSPA_MAJOR_VERSION := *' | sed 's/.*= //')
+    else
+        # Last resort: search anywhere under vendor/
+        local found=$(find vendor/ -name "version.mk" 2>/dev/null \
+            | xargs grep -l 'AOSPA_MAJOR_VERSION' 2>/dev/null | head -1)
+        if [ -n "$found" ]; then
+            version=$(cat "$found" \
+                | grep 'AOSPA_MAJOR_VERSION := *' | sed 's/.*= //')
+        fi
+    fi
+
+    # If still empty after all attempts, use fallback label
+    if [ -z "$version" ]; then
+        version="unknown"
+        echo -e "${CLR_BLD_RED}Warning: Could not find version.mk, display version set to 'unknown'${CLR_RST}" >&2
+    fi
+
+    echo "$version"
+}
+
 echo "=========================================="
 echo "    AOSPA Shadedark Build for Crave.io    "
 echo "    Device : $DEVICE                      "
@@ -75,8 +106,7 @@ lunch aospa_${DEVICE}-${BUILD_TYPE}
 checkExit
 
 AOSPA_VERSION="$(get_build_var AOSPA_VERSION)"
-AOSPA_DISPLAY_VERSION="$(cat vendor/aospa/target/product/version.mk \
-    | grep 'AOSPA_MAJOR_VERSION := *' | sed 's/.*= //')"
+AOSPA_DISPLAY_VERSION="$(getDisplayVersion)"
 
 echo -e "\n${CLR_BLD_GRN}Building AOSPA $AOSPA_DISPLAY_VERSION for $DEVICE${CLR_RST}"
 echo -e "${CLR_GRN}Start time: $(date)${CLR_RST}"
