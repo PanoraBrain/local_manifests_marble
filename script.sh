@@ -76,15 +76,12 @@ find .repo/projects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
 find .repo/project-objects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
 echo -e "${CLR_GRN}SSH, HTTPS and hooks configured.${CLR_RST}"
 
-# ── Step 0.5: Wipe leftover base ROM files ───────────────
-# Crave pre-loads the base project (e.g. LineageOS) before
-# your script starts. We delete all checked-out source files
-# but keep .repo so git objects are reused and sync is faster.
-echo -e "\n${CLR_BLD_BLU}[0.5/7] Cleaning leftover base ROM files...${CLR_RST}"
+
+echo -e "\n${CLR_BLD_BLU}[0.5/7] Cl...${CLR_RST}"
 find . -mindepth 1 -maxdepth 1 \
     ! -name '.repo' \
     -exec rm -rf {} + 2>/dev/null || true
-echo -e "${CLR_GRN}Leftover files cleaned.${CLR_RST}"
+echo -e "${CLR_GRN}here we go.${CLR_RST}"
 
 # ── Step 1: Re-init repo to aospa-shadedark ─────────────
 echo -e "\n${CLR_BLD_BLU}[1/7] Initializing aospa-shadedark repo...${CLR_RST}"
