@@ -63,6 +63,12 @@ echo "    Device : $DEVICE                      "
 echo "    Branch : $AOSPA_BRANCH                "
 echo "=========================================="
 
+# ── Step 0: Trust GitHub SSH Keys ───────────────────────
+echo -e "\n${CLR_BLD_BLU}[0/7] Adding GitHub to SSH known_hosts...${CLR_RST}"
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+ssh-keyscan -t rsa,ecdsa,ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
+chmod 600 ~/.ssh/known_hosts
+
 # ── Step 1: Re-init repo to aospa-shadedark ─────────────
 echo -e "\n${CLR_BLD_BLU}[1/7] Initializing aospa-shadedark repo...${CLR_RST}"
 repo init -u $AOSPA_MANIFEST -b $AOSPA_BRANCH --depth=1 --git-lfs
