@@ -22,33 +22,28 @@ function checkExit() {
     EXIT_CODE=$?
     if [ $EXIT_CODE -ne 0 ]; then
         echo -e "${CLR_BLD_RED}Error! Build failed at the last step.${CLR_RST}"
-        exit $EXIT_CODE
+        exit "$EXIT_CODE"
     fi
 }
 
-# Fallback-safe way to get AOSPA_MAJOR_VERSION
-# Tries vendor/aospa first (official path), then vendor/shadedark,
-# then falls back to "unknown" so the script never crashes here
 function getDisplayVersion() {
     local version=""
+    local found=""
 
     if [ -f "vendor/aospa/target/product/version.mk" ]; then
-        version=$(cat vendor/aospa/target/product/version.mk \
-            | grep 'AOSPA_MAJOR_VERSION := *' | sed 's/.*= //')
+        version=$(grep 'AOSPA_MAJOR_VERSION := *' vendor/aospa/target/product/version.mk \
+            | sed 's/.*= //')
     elif [ -f "vendor/shadedark/target/product/version.mk" ]; then
-        version=$(cat vendor/shadedark/target/product/version.mk \
-            | grep 'AOSPA_MAJOR_VERSION := *' | sed 's/.*= //')
+        version=$(grep 'AOSPA_MAJOR_VERSION := *' vendor/shadedark/target/product/version.mk \
+            | sed 's/.*= //')
     else
-        # Last resort: search anywhere under vendor/
-        local found=$(find vendor/ -name "version.mk" 2>/dev/null \
-            | xargs grep -l 'AOSPA_MAJOR_VERSION' 2>/dev/null | head -1)
+        found=$(find vendor/ -name "version.mk" -exec \
+            grep -l 'AOSPA_MAJOR_VERSION' {} \; 2>/dev/null | head -1)
         if [ -n "$found" ]; then
-            version=$(cat "$found" \
-                | grep 'AOSPA_MAJOR_VERSION := *' | sed 's/.*= //')
+            version=$(grep 'AOSPA_MAJOR_VERSION := *' "$found" | sed 's/.*= //')
         fi
     fi
 
-    # If still empty after all attempts, use fallback label
     if [ -z "$version" ]; then
         version="unknown"
         echo -e "${CLR_BLD_RED}Warning: Could not find version.mk, display version set to 'unknown'${CLR_RST}" >&2
@@ -63,21 +58,27 @@ echo "    Device : $DEVICE                      "
 echo "    Branch : $AOSPA_BRANCH                "
 echo "=========================================="
 
-# ── Step 0: Trust GitHub & Force HTTPS ──────────────────
-echo -e "\n${CLR_BLD_BLU}[0/7] Configuring Git SSH/HTTPS settings...${CLR_RST}"
-# 1. Trust GitHub's host keys
-mkdir -p ~/.ssh && chmod 700 ~/.ssh
+# ── Step 0: SSH, HTTPS and hooks fix ────────────────────
+echo -e "\n${CLR_BLD_BLU}[0/7] Configuring Git and SSH settings...${CLR_RST}"
+
+# Trust GitHub host keys (prevents interactive yes/no hang)
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
 ssh-keyscan -t rsa,ecdsa,ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
 chmod 600 ~/.ssh/known_hosts
 
-# 2. Force Git to use HTTPS instead of SSH for public repos
+# Force HTTPS instead of SSH for all GitHub URLs
 git config --global url."https://github.com/".insteadOf "git@github.com:"
 git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
 
+# Fix "hooks is different" error caused by switching ROMs on crave
+find .repo/projects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
+find .repo/project-objects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
+echo -e "${CLR_GRN}SSH, HTTPS and hooks configured.${CLR_RST}"
 
 # ── Step 1: Re-init repo to aospa-shadedark ─────────────
 echo -e "\n${CLR_BLD_BLU}[1/7] Initializing aospa-shadedark repo...${CLR_RST}"
-repo init -u $AOSPA_MANIFEST -b $AOSPA_BRANCH --depth=1 --git-lfs
+repo init -u "$AOSPA_MANIFEST" -b "$AOSPA_BRANCH" --depth=1 --git-lfs
 checkExit
 
 # ── Step 2: Clean and set up local manifests ─────────────
@@ -102,8 +103,9 @@ checkExit
 
 # ── Step 4: Lunch to trigger Barista ─────────────────────
 echo -e "\n${CLR_BLD_BLU}[4/7] Running lunch to trigger Barista...${CLR_RST}"
+# shellcheck source=/dev/null
 . build/envsetup.sh
-lunch aospa_${DEVICE}-${BUILD_TYPE}
+lunch "aospa_${DEVICE}-${BUILD_TYPE}"
 checkExit
 
 # ── Step 5: Second sync (Barista device trees) ───────────
@@ -113,8 +115,9 @@ checkExit
 
 # ── Step 6: Re-lunch with full tree ──────────────────────
 echo -e "\n${CLR_BLD_BLU}[6/7] Re-lunching with complete device tree...${CLR_RST}"
+# shellcheck source=/dev/null
 . build/envsetup.sh
-lunch aospa_${DEVICE}-${BUILD_TYPE}
+lunch "aospa_${DEVICE}-${BUILD_TYPE}"
 checkExit
 
 AOSPA_VERSION="$(get_build_var AOSPA_VERSION)"
@@ -126,7 +129,7 @@ TIME_START=$(date +%s.%N)
 
 # ── Step 7: Build ─────────────────────────────────────────
 echo -e "\n${CLR_BLD_BLU}[7/7] Starting compilation...${CLR_RST}"
-m otapackage -j$(nproc --all)
+m otapackage -j"$(nproc --all)"
 checkExit
 
 # ── Finalize output ───────────────────────────────────────
