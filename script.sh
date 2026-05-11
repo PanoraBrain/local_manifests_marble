@@ -63,11 +63,17 @@ echo "    Device : $DEVICE                      "
 echo "    Branch : $AOSPA_BRANCH                "
 echo "=========================================="
 
-# ── Step 0: Trust GitHub SSH Keys ───────────────────────
-echo -e "\n${CLR_BLD_BLU}[0/7] Adding GitHub to SSH known_hosts...${CLR_RST}"
+# ── Step 0: Trust GitHub & Force HTTPS ──────────────────
+echo -e "\n${CLR_BLD_BLU}[0/7] Configuring Git SSH/HTTPS settings...${CLR_RST}"
+# 1. Trust GitHub's host keys
 mkdir -p ~/.ssh && chmod 700 ~/.ssh
 ssh-keyscan -t rsa,ecdsa,ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
 chmod 600 ~/.ssh/known_hosts
+
+# 2. Force Git to use HTTPS instead of SSH for public repos
+git config --global url."https://github.com/".insteadOf "git@github.com:"
+git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+
 
 # ── Step 1: Re-init repo to aospa-shadedark ─────────────
 echo -e "\n${CLR_BLD_BLU}[1/7] Initializing aospa-shadedark repo...${CLR_RST}"
