@@ -71,10 +71,20 @@ chmod 600 ~/.ssh/known_hosts
 git config --global url."https://github.com/".insteadOf "git@github.com:"
 git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
 
-# Fix "hooks is different" error caused by switching ROMs on crave
+# Fix "hooks is different" caused by switching ROMs on crave
 find .repo/projects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
 find .repo/project-objects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
 echo -e "${CLR_GRN}SSH, HTTPS and hooks configured.${CLR_RST}"
+
+# ── Step 0.5: Wipe leftover base ROM files ───────────────
+# Crave pre-loads the base project (e.g. LineageOS) before
+# your script starts. We delete all checked-out source files
+# but keep .repo so git objects are reused and sync is faster.
+echo -e "\n${CLR_BLD_BLU}[0.5/7] Cleaning leftover base ROM files...${CLR_RST}"
+find . -mindepth 1 -maxdepth 1 \
+    ! -name '.repo' \
+    -exec rm -rf {} + 2>/dev/null || true
+echo -e "${CLR_GRN}Leftover files cleaned.${CLR_RST}"
 
 # ── Step 1: Re-init repo to aospa-shadedark ─────────────
 echo -e "\n${CLR_BLD_BLU}[1/7] Initializing aospa-shadedark repo...${CLR_RST}"
@@ -143,6 +153,11 @@ cp -f "$OUT_ZIP" "$OUT/aospa-${AOSPA_VERSION}.zip"
 
 TIME_END=$(date +%s.%N)
 echo -e "\n${CLR_BLD_GRN}=========================================="
+echo -e "Build complete!"
+echo -e "Package : $OUT/aospa-${AOSPA_VERSION}.zip"
+echo -e "Time    : $(echo "($TIME_END - $TIME_START) / 60" | bc) minutes"
+echo -e "==========================================${CLR_RST}"
+exit 0echo -e "\n${CLR_BLD_GRN}=========================================="
 echo -e "Build complete!"
 echo -e "Package : $OUT/aospa-${AOSPA_VERSION}.zip"
 echo -e "Time    : $(echo "($TIME_END - $TIME_START) / 60" | bc) minutes"
