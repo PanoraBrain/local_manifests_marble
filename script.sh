@@ -74,6 +74,10 @@ git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
 # Fix "hooks is different" caused by switching ROMs on crave
 find .repo/projects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
 find .repo/project-objects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
+find .repo/projects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
+find .repo/project-objects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
+find .repo/projects -name "objects" -type d -exec rm -rf {} + 2>/dev/null || true
+find .repo/project-objects -name "objects" -type d -exec rm -rf {} + 2>/dev/null || true
 echo -e "${CLR_GRN}SSH, HTTPS and hooks configured.${CLR_RST}"
 
 
