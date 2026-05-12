@@ -10,7 +10,7 @@ CLR_GRN=$CLR_RST$(tput setaf 2)
 
 # ── Config ──────────────────────────────────────────────
 DEVICE="marble"
-BUILD_TYPE="userdebug"
+BUILD_TYPE="user"
 AOSPA_BRANCH="beryl"
 AOSPA_MANIFEST="https://github.com/aospa-shadedark/manifest"
 BCR_REMOTE="https://github.com/xiaomi-sm8450-marble"
