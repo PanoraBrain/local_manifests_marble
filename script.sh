@@ -96,16 +96,32 @@ cat << EOF > .repo/local_manifests/bcr.xml
 EOF
 echo -e "${CLR_GRN}BCR manifest written.${CLR_RST}"
 
-# Settings HTTPS override (fixes github-ssh failure on Crave/VPS)
-cat << EOF > .repo/local_manifests/settings.xml
+# HTTPS override for all github-ssh 
+cat << 'EOF' > .repo/local_manifests/shadedark-https.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-    <remote name="shadedark-https" fetch="https://github.com/aospa-shadedark" />
-    <remove-project name="aospa-shadedark/android_packages_apps_Settings" />
-    <project name="android_packages_apps_Settings" path="packages/apps/Settings" remote="shadedark-https" revision="beryl" />
+  <remote name="shadedark-https" fetch="https://github.com/aospa-shadedark" />
+  <remove-project name="aospa-shadedark/android_frameworks_base" />
+  <project path="frameworks/base" name="android_frameworks_base" remote="shadedark-https" revision="beryl" />
+  <remove-project name="aospa-shadedark/android_frameworks_native" />
+  <project path="frameworks/native" name="android_frameworks_native" remote="shadedark-https" revision="beryl" />
+  <remove-project name="aospa-shadedark/manifest" />
+  <project path="manifest" name="manifest" remote="shadedark-https" revision="beryl" />
+  <remove-project name="aospa-shadedark/android_packages_apps_ParanoidSettings" />
+  <project path="packages/apps/ParanoidSettings" name="android_packages_apps_ParanoidSettings" remote="shadedark-https" revision="beryl" />
+  <remove-project name="aospa-shadedark/android_packages_apps_Launcher3" />
+  <project path="packages/apps/Launcher3" name="android_packages_apps_Launcher3" remote="shadedark-https" revision="beryl" />
+  <remove-project name="aospa-shadedark/android_packages_apps_Settings" />
+  <project path="packages/apps/Settings" name="android_packages_apps_Settings" remote="shadedark-https" revision="beryl" />
+  <remove-project name="aospa-shadedark/android_tools_extract-utils" />
+  <project path="tools/extract-utils" name="android_tools_extract-utils" remote="shadedark-https" revision="beryl" />
+  <remove-project name="aospa-shadedark/android_vendor_aospa" />
+  <project path="vendor/aospa" name="android_vendor_aospa" remote="shadedark-https" revision="beryl" >
+    <linkfile src="build.sh" dest="rom-build.sh" />
+  </project>
 </manifest>
 EOF
-echo -e "${CLR_GRN}Settings HTTPS override manifest written.${CLR_RST}"
+echo -e "${CLR_GRN}shadedark HTTPS override manifest written.${CLR_RST}"
 
 # ── Step 3: First sync (core source + BCR) ───────────────
 echo -e "\n${CLR_BLD_BLU}[3/7] First sync - core source + BCR...${CLR_RST}"
