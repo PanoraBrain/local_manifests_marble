@@ -115,10 +115,7 @@ cat << 'EOF' > .repo/local_manifests/shadedark-https.xml
   <project path="packages/apps/Settings" name="android_packages_apps_Settings" remote="shadedark-https" revision="beryl" />
   <remove-project name="aospa-shadedark/android_tools_extract-utils" />
   <project path="tools/extract-utils" name="android_tools_extract-utils" remote="shadedark-https" revision="beryl" />
-  <remove-project name="aospa-shadedark/android_vendor_aospa" />
-  <project path="vendor/aospa" name="android_vendor_aospa" remote="shadedark-https" revision="beryl" >
-    <linkfile src="build.sh" dest="rom-build.sh" />
-  </project>
+
 </manifest>
 EOF
 echo -e "${CLR_GRN}shadedark HTTPS override manifest written.${CLR_RST}"
