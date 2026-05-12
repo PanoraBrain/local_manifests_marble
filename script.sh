@@ -16,6 +16,8 @@ AOSPA_MANIFEST="https://github.com/aospa-shadedark/manifest"
 BCR_REMOTE="https://github.com/xiaomi-sm8450-marble"
 BCR_REPO="android_vendor_bcr"
 BCR_BRANCH="ursa"
+TELECOMM_COMMIT="dc55208d85933334bfbc420d5ece9516fe8d56fc"
+TELECOMM_REMOTE="https://github.com/aospa-shadedark/android_packages_services_Telecomm"
 # ────────────────────────────────────────────────────────
 
 function checkExit() {
@@ -84,6 +86,7 @@ echo -e "\n${CLR_BLD_BLU}[2/7] Setting up local manifests...${CLR_RST}"
 rm -rf .repo/local_manifests
 mkdir -p .repo/local_manifests
 
+# BCR manifest
 cat << EOF > .repo/local_manifests/bcr.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
@@ -91,13 +94,32 @@ cat << EOF > .repo/local_manifests/bcr.xml
     <project path="vendor/bcr" name="${BCR_REPO}" remote="xiaomi-marble" revision="${BCR_BRANCH}" />
 </manifest>
 EOF
-
 echo -e "${CLR_GRN}BCR manifest written.${CLR_RST}"
+
+# Settings HTTPS override (fixes github-ssh failure on Crave/VPS)
+cat << EOF > .repo/local_manifests/settings.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+    <remote name="shadedark-https" fetch="https://github.com/aospa-shadedark" />
+    <remove-project name="aospa-shadedark/android_packages_apps_Settings" />
+    <project name="android_packages_apps_Settings" path="packages/apps/Settings" remote="shadedark-https" revision="beryl" />
+</manifest>
+EOF
+echo -e "${CLR_GRN}Settings HTTPS override manifest written.${CLR_RST}"
 
 # ── Step 3: First sync (core source + BCR) ───────────────
 echo -e "\n${CLR_BLD_BLU}[3/7] First sync - core source + BCR...${CLR_RST}"
 /opt/crave/resync.sh
 checkExit
+
+# ── Apply Telecomm cherry-pick ────────────────────────────
+echo -e "\n${CLR_BLD_BLU}Applying Telecomm cherry-pick...${CLR_RST}"
+cd packages/services/Telecomm
+git fetch "$TELECOMM_REMOTE" "$TELECOMM_COMMIT"
+git cherry-pick "$TELECOMM_COMMIT"
+checkExit
+cd ../../..
+echo -e "${CLR_GRN}Telecomm cherry-pick applied successfully.${CLR_RST}"
 
 # ── Step 4: Lunch to trigger Barista ─────────────────────
 echo -e "\n${CLR_BLD_BLU}[4/7] Running lunch to trigger Barista...${CLR_RST}"
@@ -110,6 +132,15 @@ checkExit
 echo -e "\n${CLR_BLD_BLU}[5/7] Second sync - pulling Barista device trees...${CLR_RST}"
 /opt/crave/resync.sh
 checkExit
+
+# ── Re-apply Telecomm cherry-pick after second sync ───────
+echo -e "\n${CLR_BLD_BLU}Re-applying Telecomm cherry-pick after second sync...${CLR_RST}"
+cd packages/services/Telecomm
+git fetch "$TELECOMM_REMOTE" "$TELECOMM_COMMIT"
+git cherry-pick "$TELECOMM_COMMIT" || git cherry-pick --skip
+checkExit
+cd ../../..
+echo -e "${CLR_GRN}Telecomm cherry-pick re-applied.${CLR_RST}"
 
 # ── Step 6: Re-lunch with full tree ──────────────────────
 echo -e "\n${CLR_BLD_BLU}[6/7] Re-lunching with complete device tree...${CLR_RST}"
@@ -142,12 +173,3 @@ cp -f "$OUT_ZIP" "$OUT/aospa-${AOSPA_VERSION}.zip"
 TIME_END=$(date +%s.%N)
 echo -e "\n${CLR_BLD_GRN}=========================================="
 echo -e "Build complete!"
-echo -e "Package : $OUT/aospa-${AOSPA_VERSION}.zip"
-echo -e "Time    : $(echo "($TIME_END - $TIME_START) / 60" | bc) minutes"
-echo -e "==========================================${CLR_RST}"
-exit 0echo -e "\n${CLR_BLD_GRN}=========================================="
-echo -e "Build complete!"
-echo -e "Package : $OUT/aospa-${AOSPA_VERSION}.zip"
-echo -e "Time    : $(echo "($TIME_END - $TIME_START) / 60" | bc) minutes"
-echo -e "==========================================${CLR_RST}"
-exit 0
