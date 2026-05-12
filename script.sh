@@ -71,21 +71,8 @@ chmod 600 ~/.ssh/known_hosts
 git config --global url."https://github.com/".insteadOf "git@github.com:"
 git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
 
-# Fix "hooks is different" caused by switching ROMs on crave
-find .repo/projects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
-find .repo/project-objects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
-find .repo/projects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
-find .repo/project-objects -name "hooks" -type d -exec rm -rf {} + 2>/dev/null || true
-find .repo/projects -name "objects" -type d -exec rm -rf {} + 2>/dev/null || true
-find .repo/project-objects -name "objects" -type d -exec rm -rf {} + 2>/dev/null || true
-echo -e "${CLR_GRN}SSH, HTTPS and hooks configured.${CLR_RST}"
-
-
-echo -e "\n${CLR_BLD_BLU}[0.5/7] Cl...${CLR_RST}"
-find . -mindepth 1 -maxdepth 1 \
-    ! -name '.repo' \
-    -exec rm -rf {} + 2>/dev/null || true
-echo -e "${CLR_GRN}here we go.${CLR_RST}"
+rm -rf prebuilts/clang/host/linux-x86
+rm -rf .repo/projects/prebuilts/clang/host/linux-x86.git
 
 # ── Step 1: Re-init repo to aospa-shadedark ─────────────
 echo -e "\n${CLR_BLD_BLU}[1/7] Initializing aospa-shadedark repo...${CLR_RST}"
