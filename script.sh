@@ -324,7 +324,7 @@ if [ "$SIGNED_BUILD" = true ]; then
 
     # ── Signed build ──────────────────────────────────────
     update_status 7 7 "🔨 Compiling (signed)... (this takes a while)" "<b>🏗 Version:</b>  <code>${AOSPA_DISPLAY_VERSION}</code>"
-    m otatools target-files-package -j"$(nproc --all)"
+    m otatools target-files-package
     checkExit
 
     # Set password file if provided and exists
@@ -353,7 +353,7 @@ else
 
     # ── Unsigned build ────────────────────────────────────
     update_status 7 7 "🔨 Compiling... (this takes a while)" "<b>🏗 Version:</b>  <code>${AOSPA_DISPLAY_VERSION}</code>"
-    m otapackage -j"$(nproc --all)"
+    m otapackage
     checkExit
 
     OUT_ZIP=$(find "$OUT" -maxdepth 1 -name "aospa_${DEVICE}-ota*.zip" | head -1)
