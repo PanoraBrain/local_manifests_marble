@@ -26,7 +26,7 @@ TELECOMM_COMMIT="dc55208d85933334bfbc420d5ece9516fe8d56fc"
 TELECOMM_REMOTE="https://github.com/aospa-shadedark/android_packages_services_Telecomm"
 # Sign keys path — set to directory containing releasekey, platform, etc.
 # Leave empty to do a normal unsigned build.
-SIGN_KEYS=""
+SIGN_KEYS="androidkeys"
 # Path to sign key password file — leave empty if keys have no password.
 PWFILE=""
 # ────────────────────────────────────────────────────────
