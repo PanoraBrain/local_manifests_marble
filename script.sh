@@ -24,6 +24,11 @@ BCR_REPO="vendor_bcr"
 BCR_BRANCH="main"
 TELECOMM_COMMIT="dc55208d85933334bfbc420d5ece9516fe8d56fc"
 TELECOMM_REMOTE="https://github.com/aospa-shadedark/android_packages_services_Telecomm"
+# Sign keys path — set to directory containing releasekey, platform, etc.
+# Leave empty to do a normal unsigned build.
+SIGN_KEYS=""
+# Path to sign key password file — leave empty if keys have no password.
+PWFILE=""
 # ────────────────────────────────────────────────────────
 
 # ── Telegram Bot API Helpers ───────────────────────────
@@ -300,27 +305,74 @@ echo -e "\n${CLR_BLD_GRN}Building AOSPA $AOSPA_DISPLAY_VERSION for $DEVICE${CLR_
 echo -e "${CLR_GRN}Start time: $(date)${CLR_RST}"
 TIME_START=$(date +%s.%N)
 
-# ── Step 7: Build ─────────────────────────────────────────
-echo -e "\n${CLR_BLD_BLU}[7/7] Starting compilation...${CLR_RST}"
-update_status 7 7 "🔨 Compiling... (this takes a while)" "<b>🏗 Version:</b>  <code>${AOSPA_DISPLAY_VERSION}</code>"
-m otapackage -j"$(nproc --all)"
-checkExit
-
-# ── Finalize output ───────────────────────────────────────
-OUT_ZIP=$(find "$OUT" -maxdepth 1 -name "aospa_${DEVICE}-ota*.zip" | head -1)
-if [ -z "$OUT_ZIP" ]; then
-    echo -e "${CLR_BLD_RED}Output zip not found in $OUT!${CLR_RST}"
-    local fail_text=""
-    fail_text+="<b>❌ Build Error</b>"
-    fail_text+=$'\n'"━━━━━━━━━━━━━━━━━━━━━━"
-    fail_text+=$'\n'"Output ZIP not found in <code>$OUT</code>"
-    tg_edit_message "$STATUS_MSG_ID" "$fail_text"
-    exit 1
+# ── Resolve signing mode ──────────────────────────────────
+# Falls back to unsigned if SIGN_KEYS is empty or the directory/key is missing
+SIGNED_BUILD=false
+if [ -n "$SIGN_KEYS" ]; then
+    if [ -d "$SIGN_KEYS" ] && [ -f "$SIGN_KEYS/releasekey.pk8" ]; then
+        SIGNED_BUILD=true
+        echo -e "${CLR_BLD_GRN}Sign keys found — building signed package.${CLR_RST}"
+    else
+        echo -e "${CLR_BLD_RED}Warning: SIGN_KEYS is set but keys not found at '${SIGN_KEYS}'. Falling back to unsigned build.${CLR_RST}"
+    fi
 fi
 
-FINAL_ZIP="$OUT/aospa-${AOSPA_VERSION}.zip"
-cp -f "$OUT_ZIP" "$FINAL_ZIP"
+# ── Step 7: Build ─────────────────────────────────────────
+echo -e "\n${CLR_BLD_BLU}[7/7] Starting compilation...${CLR_RST}"
 
+if [ "$SIGNED_BUILD" = true ]; then
+
+    # ── Signed build ──────────────────────────────────────
+    update_status 7 7 "🔨 Compiling (signed)... (this takes a while)" "<b>🏗 Version:</b>  <code>${AOSPA_DISPLAY_VERSION}</code>"
+    m otatools target-files-package -j"$(nproc --all)"
+    checkExit
+
+    # Set password file if provided and exists
+    if [ -n "$PWFILE" ] && [ -f "$PWFILE" ]; then
+        export ANDROID_PW_FILE="$PWFILE"
+    fi
+
+    echo -e "\n${CLR_BLD_BLU}Signing target files APKs...${CLR_RST}"
+    update_status 7 7 "🔏 Signing target files..." "<b>🏗 Version:</b>  <code>${AOSPA_DISPLAY_VERSION}</code>"
+    sign_target_files_apks -o -d "$SIGN_KEYS" \
+        "$OUT/obj/PACKAGING/target_files_intermediates/aospa_${DEVICE}-target_files.zip" \
+        "$OUT/aospa-${AOSPA_VERSION}-signed-target_files.zip"
+    checkExit
+
+    echo -e "\n${CLR_BLD_BLU}Generating signed OTA package...${CLR_RST}"
+    update_status 7 7 "📦 Generating signed OTA..." "<b>🏗 Version:</b>  <code>${AOSPA_DISPLAY_VERSION}</code>"
+    ota_from_target_files -k "$SIGN_KEYS/releasekey" \
+        --block \
+        "$OUT/aospa-${AOSPA_VERSION}-signed-target_files.zip" \
+        "$OUT/aospa-${AOSPA_VERSION}.zip"
+    checkExit
+
+    FINAL_ZIP="$OUT/aospa-${AOSPA_VERSION}.zip"
+
+else
+
+    # ── Unsigned build ────────────────────────────────────
+    update_status 7 7 "🔨 Compiling... (this takes a while)" "<b>🏗 Version:</b>  <code>${AOSPA_DISPLAY_VERSION}</code>"
+    m otapackage -j"$(nproc --all)"
+    checkExit
+
+    OUT_ZIP=$(find "$OUT" -maxdepth 1 -name "aospa_${DEVICE}-ota*.zip" | head -1)
+    if [ -z "$OUT_ZIP" ]; then
+        echo -e "${CLR_BLD_RED}Output zip not found in $OUT!${CLR_RST}"
+        fail_text=""
+        fail_text+="<b>❌ Build Error</b>"
+        fail_text+=$'\n'"━━━━━━━━━━━━━━━━━━━━━━"
+        fail_text+=$'\n'"Output ZIP not found in <code>$OUT</code>"
+        tg_edit_message "$STATUS_MSG_ID" "$fail_text"
+        exit 1
+    fi
+
+    FINAL_ZIP="$OUT/aospa-${AOSPA_VERSION}.zip"
+    cp -f "$OUT_ZIP" "$FINAL_ZIP"
+
+fi
+
+# ── Finalize output ───────────────────────────────────────
 TIME_END=$(date +%s.%N)
 ELAPSED_SECS=$(awk "BEGIN {printf \"%d\", $TIME_END - $TIME_START}")
 BUILD_DURATION=$(format_duration "$ELAPSED_SECS")
@@ -328,8 +380,14 @@ FILE_SIZE=$(stat -c%s "$FINAL_ZIP" 2>/dev/null || stat -f%z "$FINAL_ZIP" 2>/dev/
 PRETTY_SIZE=$(format_size "$FILE_SIZE")
 MD5SUM=$(md5sum "$FINAL_ZIP" | awk '{print $1}')
 
+if [ "$SIGNED_BUILD" = true ]; then
+    SIGN_LABEL="Signed ✅"
+else
+    SIGN_LABEL="Unsigned"
+fi
+
 echo -e "\n${CLR_BLD_GRN}=========================================="
-echo -e "Build complete!"
+echo -e "Build complete! ($SIGN_LABEL)"
 echo -e "  File: $(basename "$FINAL_ZIP")"
 echo -e "  Size: $PRETTY_SIZE"
 echo -e "  MD5:  $MD5SUM"
@@ -369,6 +427,7 @@ FINAL_TEXT+=$'\n'"<b>📱 Device:</b>       <code>${DEVICE}</code>"
 FINAL_TEXT+=$'\n'"<b>🌿 Branch:</b>       <code>${AOSPA_BRANCH}</code>"
 FINAL_TEXT+=$'\n'"<b>🏷 Build Type:</b>   <code>${BUILD_TYPE}</code>"
 FINAL_TEXT+=$'\n'"<b>📋 Version:</b>      <code>${AOSPA_DISPLAY_VERSION}</code>"
+FINAL_TEXT+=$'\n'"<b>🔐 Signed:</b>       <code>${SIGN_LABEL}</code>"
 FINAL_TEXT+=$'\n'
 FINAL_TEXT+=$'\n'"━━━━━━━━━━━━━━━━━━━━━━"
 FINAL_TEXT+=$'\n'
