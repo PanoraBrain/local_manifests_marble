@@ -8,19 +8,6 @@ CLR_BLD_GRN=$CLR_RST$CLR_BLD$(tput setaf 2)
 CLR_BLD_BLU=$CLR_RST$CLR_BLD$(tput setaf 4)
 CLR_GRN=$CLR_RST$(tput setaf 2)
 
-# ── Load .env ──────────────────────────────────────────────
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [ -f "$SCRIPT_DIR/.env" ]; then
-    set -a
-    # shellcheck source=/dev/null
-    . "$SCRIPT_DIR/.env"
-    set +a
-elif [ -f ".env" ]; then
-    set -a
-    # shellcheck source=/dev/null
-    . ".env"
-    set +a
-fi
 
 # Validate required env vars (warn only, don't exit)
 if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ] || [ -z "$PIXELDRAIN_API_KEY" ]; then
