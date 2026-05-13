@@ -229,8 +229,7 @@ chmod 600 ~/.ssh/known_hosts
 git config --global url."https://github.com/".insteadOf "git@github.com:"
 git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
 
-rm -rf prebuilts/clang/host/linux-x86
-rm -rf .repo/projects/prebuilts/clang/host/linux-x86.git
+
 
 # ── Step 1: Re-init repo to aospa-shadedark ─────────────
 echo -e "\n${CLR_BLD_BLU}[1/7] Initializing aospa-shadedark repo...${CLR_RST}"
