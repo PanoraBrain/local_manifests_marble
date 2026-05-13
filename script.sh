@@ -139,7 +139,7 @@ update_status() {
     fi
 
     local text=""
-    text+="<b>🔨 AOSPA Shadedark Build</b>"
+    text+="<b>🔨 AOSPA Build</b>"
     text+=$'\n'"━━━━━━━━━━━━━━━━━━━━━━"
     text+=$'\n'"<b>📱 Device:</b>  <code>${DEVICE}</code>"
     text+=$'\n'"<b>🌿 Branch:</b>  <code>${AOSPA_BRANCH}</code>"
@@ -208,7 +208,7 @@ function getDisplayVersion() {
 }
 
 echo "=========================================="
-echo "    AOSPA Shadedark Build for Crave.io    "
+echo "    AOSPA Build for Crave.io    "
 echo "    Device : $DEVICE                      "
 echo "    Branch : $AOSPA_BRANCH                "
 echo "=========================================="
