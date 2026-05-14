@@ -22,7 +22,7 @@ AOSPA_MANIFEST="https://github.com/aospa-shadedark/manifest"
 BCR_REMOTE="https://github.com/Chaitanyakm"
 BCR_REPO="vendor_bcr"
 BCR_BRANCH="main"
-TELECOMM_COMMIT="7185bdb94729de6086df8967dac94dc75c112bf6"
+TELECOMM_COMMIT="096b6a825628d9bd012820d1f6f674e81f375d9e"
 TELECOMM_REMOTE="https://github.com/aospa-shadedark/android_packages_services_Telecomm"
 # Sign keys path — set to directory containing releasekey, platform, etc.
 # Leave empty to do a normal unsigned build.
