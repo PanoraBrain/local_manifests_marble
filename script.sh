@@ -24,6 +24,16 @@ BCR_REPO="vendor_bcr"
 BCR_BRANCH="main"
 TELECOMM_COMMIT="2c0b0cf860551605c91c4d28187bb52c23338d49"
 TELECOMM_REMOTE="https://github.com/aospa-shadedark/android_packages_services_Telecomm"
+
+# Settings Reverts
+SETTINGS_DIR="packages/apps/Settings"
+SETTINGS_REVERTS=(
+    "c147550f9d6bb6653c6b924e57493b1514b88ecb"
+    "5f6d99c51054bc16e78ba158016e631f76933d15"
+    "93a246f2c11f40ee5ca5cf2cf015669a302585c6"
+    "5fdc76e1f09e52625def0e02412d20216c8266f3"
+)
+
 # Sign keys path — set to directory containing releasekey, platform, etc.
 # Leave empty to do a normal unsigned build.
 SIGN_KEYS="androidkeys"
@@ -289,6 +299,27 @@ git cherry-pick "$TELECOMM_COMMIT"
 checkExit
 cd ../../..
 echo -e "${CLR_GRN}Telecomm cherry-pick applied successfully.${CLR_RST}"
+
+# ── Revert Settings Commits ───────────────────────────────
+echo -e "\n${CLR_BLD_BLU}Reverting Settings commits...${CLR_RST}"
+update_status 5 7 "🔄 Syncing Barista device trees..." "⏪ <i>Reverting Settings commits...</i>"
+if [ -d "$SETTINGS_DIR" ]; then
+    cd "$SETTINGS_DIR"
+    for commit in "${SETTINGS_REVERTS[@]}"; do
+        echo -e "Attempting to revert commit ${commit}..."
+        # Try to revert; if it fails, print a warning, abort the revert state, and continue
+        if ! git revert --no-edit "$commit"; then
+            echo -e "${CLR_BLD_RED}Warning: Failed to revert ${commit} (Not found or conflict). Skipping...${CLR_RST}"
+            git revert --abort 2>/dev/null || true
+        fi
+    done
+    cd ../../..
+    echo -e "${CLR_GRN}Settings reverts processing finished.${CLR_RST}"
+else
+    # Removed 'exit 1' so the build continues even if the folder is missing
+    echo -e "${CLR_BLD_RED}Warning: Directory $SETTINGS_DIR not found! Skipping revert but continuing build.${CLR_RST}"
+fi
+
 
 # ── Step 6: Re-lunch with full tree ──────────────────────
 echo -e "\n${CLR_BLD_BLU}[6/7] Re-lunching with complete device tree...${CLR_RST}"
